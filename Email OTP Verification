@@ -1,5 +1,4 @@
 {
-  "name": "NesROI-OTP Auth",
   "nodes": [
     {
       "parameters": {
@@ -17,8 +16,7 @@
             },
             {
               "fieldLabel": "Email address",
-              "fieldType": "email",
-              "requiredField": true
+              "fieldType": "email"
             }
           ]
         },
@@ -31,10 +29,10 @@
       "type": "n8n-nodes-base.formTrigger",
       "typeVersion": 2.2,
       "position": [
-        -5008,
-        1888
+        -1120,
+        96
       ],
-      "id": "100a1b49-7257-4c17-bda5-d652cc90ee33",
+      "id": "fc290a92-6019-426d-9766-3bf47ffb9ad8",
       "name": "On form submission",
       "webhookId": "0710bf27-fb25-49c8-8524-635d8a1be00b"
     },
@@ -58,10 +56,10 @@
       "type": "n8n-nodes-base.form",
       "typeVersion": 1,
       "position": [
-        -4416,
-        1888
+        -496,
+        96
       ],
-      "id": "82fab911-aaee-4749-b347-348018a7137f",
+      "id": "7bbcc3fd-58de-4617-9c69-a1e6c5686fd7",
       "name": "Form",
       "webhookId": "df510f42-8b21-457e-9dad-49db9fb6d409"
     },
@@ -72,10 +70,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -4816,
-        1888
+        -928,
+        96
       ],
-      "id": "ccf6e3b7-9e2f-4087-827f-79acba53f8d2",
+      "id": "9afc0e76-4b02-4f24-bdf9-73aaa83a8241",
       "name": "Create Token"
     },
     {
@@ -85,7 +83,7 @@
             {
               "id": "f97066f2-de55-4283-b440-7ff2ab8b0e86",
               "name": "verification_code",
-              "value": "={{ $json['Verification Code'] }}",
+              "value": "={{ $json['verification code'] ? $json['verification code'] : $json.verification_code }}\n",
               "type": "number"
             }
           ]
@@ -95,10 +93,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -4176,
-        1888
+        -288,
+        96
       ],
-      "id": "6e525e34-998a-46e1-8954-a8f754caba9f",
+      "id": "59c0923d-f782-48a2-be84-9116f0b67f71",
       "name": "Set Code"
     },
     {
@@ -128,11 +126,58 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        -3952,
-        1888
+        -64,
+        96
       ],
-      "id": "67673694-51e3-4457-a5ad-f10d18ccbd71",
+      "id": "8e012985-969a-43f8-a112-3b121d0de64e",
       "name": "Code Correct?"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "html",
+              "html": "<!-- Your custom HTML here --->\nThe code you entered was incorrect.<br><br>\n\n"
+            },
+            {
+              "fieldLabel": "verification code",
+              "fieldType": "number",
+              "placeholder": "INCORRECT - TRY AGAIN",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Try Again"
+        }
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        64,
+        288
+      ],
+      "id": "aa0bf156-3580-4b3a-9fe6-d31c6a5d06fc",
+      "name": "Verify",
+      "webhookId": "48c18ec7-4bb2-4146-b23d-840a723dc65c"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "email verified",
+        "completionMessage": "Verification successful! You can now continue to your account",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        144,
+        0
+      ],
+      "id": "e7000bea-19b1-4796-8185-c4240b703eae",
+      "name": "Form1",
+      "webhookId": "e1582f85-118d-4e29-b864-eacdee5f891d"
     },
     {
       "parameters": {
@@ -147,10 +192,10 @@
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
       "position": [
-        -4592,
-        1888
+        -736,
+        96
       ],
-      "id": "e3a87d83-bc14-4477-9579-ef1405c1e6de",
+      "id": "c0990199-a0a6-413e-9cf8-7b9ab86ebd51",
       "name": "Verification Email",
       "webhookId": "5187ae12-e84b-4c35-8d68-d2c2eaa42cc0",
       "credentials": {
@@ -159,39 +204,8 @@
           "name": "Gmail account 2"
         }
       }
-    },
-    {
-      "parameters": {
-        "formFields": {
-          "values": [
-            {
-              "fieldType": "html",
-              "html": "<!-- Your custom HTML here --->\nThe code you entered was incorrect.<br><br>\n\n"
-            },
-            {
-              "fieldLabel": "Verification Code",
-              "fieldType": "number",
-              "placeholder": "INCORRECT - TRY AGAIN",
-              "requiredField": true
-            }
-          ]
-        },
-        "options": {
-          "buttonLabel": "Try Again"
-        }
-      },
-      "type": "n8n-nodes-base.form",
-      "typeVersion": 1,
-      "position": [
-        -3824,
-        2080
-      ],
-      "id": "9d94bdb5-3dd0-4edd-8b57-6d14440978b8",
-      "name": "Verify",
-      "webhookId": "48c18ec7-4bb2-4146-b23d-840a723dc65c"
     }
   ],
-  "pinData": {},
   "connections": {
     "On form submission": {
       "main": [
@@ -239,21 +253,16 @@
     },
     "Code Correct?": {
       "main": [
-        [],
         [
           {
-            "node": "Verify",
+            "node": "Form1",
             "type": "main",
             "index": 0
           }
-        ]
-      ]
-    },
-    "Verification Email": {
-      "main": [
+        ],
         [
           {
-            "node": "Form",
+            "node": "Verify",
             "type": "main",
             "index": 0
           }
@@ -270,17 +279,21 @@
           }
         ]
       ]
+    },
+    "Verification Email": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "versionId": "7a479a54-afb6-48bf-ad58-273fc137d7c2",
+  "pinData": {},
   "meta": {
-    "templateCredsSetupCompleted": true,
     "instanceId": "4320758f5196477e45fd34eff36296a09822556b58d06f4a73b0c972f5cf03ac"
-  },
-  "id": "eUpjpEUlkeSlcDfL",
-  "tags": []
+  }
 }
