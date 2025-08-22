@@ -1,0 +1,286 @@
+{
+  "name": "NesROI-OTP Auth",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "verify your email",
+        "formDescription": "Just a few quick questions",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "First name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "last name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Email address",
+              "fieldType": "email",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "appendAttribution": false,
+          "buttonLabel": "Submit",
+          "path": "nesroi-ai"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -5008,
+        1888
+      ],
+      "id": "100a1b49-7257-4c17-bda5-d652cc90ee33",
+      "name": "On form submission",
+      "webhookId": "0710bf27-fb25-49c8-8524-635d8a1be00b"
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "html",
+              "html": "<!-- Your cu<!-- Your custom HTML here --->\nCheck your email for the verification code!<br><br><br>\n\n\n\n"
+            },
+            {
+              "fieldLabel": "verification code",
+              "fieldType": "number",
+              "placeholder": "Please check your email for verification code"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        -4416,
+        1888
+      ],
+      "id": "82fab911-aaee-4749-b347-348018a7137f",
+      "name": "Form",
+      "webhookId": "df510f42-8b21-457e-9dad-49db9fb6d409"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Iterate through every item coming from the previous node\nreturn items.map(item => {\n  // Add a 6-digit random number (number type; use .toString() if you need text)\n  item.json.random_token = Math.floor(100000 + Math.random() * 900000);\n  return item;\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -4816,
+        1888
+      ],
+      "id": "ccf6e3b7-9e2f-4087-827f-79acba53f8d2",
+      "name": "Create Token"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f97066f2-de55-4283-b440-7ff2ab8b0e86",
+              "name": "verification_code",
+              "value": "={{ $json['Verification Code'] }}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -4176,
+        1888
+      ],
+      "id": "6e525e34-998a-46e1-8954-a8f754caba9f",
+      "name": "Set Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "800e8dd7-331b-45a5-9053-784638552123",
+              "leftValue": "={{ $json.verification_code }}",
+              "rightValue": "={{ $('Create Token').item.json.random_token }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -3952,
+        1888
+      ],
+      "id": "67673694-51e3-4457-a5ad-f10d18ccbd71",
+      "name": "Code Correct?"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json['Email address'] }}",
+        "subject": "Login security code",
+        "emailType": "text",
+        "message": "=Hi {{ $json[\"First name\"] }}, \n\nVerification code: {{ $json.random_token }}\n\nThanks",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        -4592,
+        1888
+      ],
+      "id": "e3a87d83-bc14-4477-9579-ef1405c1e6de",
+      "name": "Verification Email",
+      "webhookId": "5187ae12-e84b-4c35-8d68-d2c2eaa42cc0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "FA0PDso5RMjBQntG",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "html",
+              "html": "<!-- Your custom HTML here --->\nThe code you entered was incorrect.<br><br>\n\n"
+            },
+            {
+              "fieldLabel": "Verification Code",
+              "fieldType": "number",
+              "placeholder": "INCORRECT - TRY AGAIN",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "buttonLabel": "Try Again"
+        }
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [
+        -3824,
+        2080
+      ],
+      "id": "9d94bdb5-3dd0-4edd-8b57-6d14440978b8",
+      "name": "Verify",
+      "webhookId": "48c18ec7-4bb2-4146-b23d-840a723dc65c"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Create Token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Form": {
+      "main": [
+        [
+          {
+            "node": "Set Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Token": {
+      "main": [
+        [
+          {
+            "node": "Verification Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Code": {
+      "main": [
+        [
+          {
+            "node": "Code Correct?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Correct?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Verify",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verification Email": {
+      "main": [
+        [
+          {
+            "node": "Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify": {
+      "main": [
+        [
+          {
+            "node": "Set Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "7a479a54-afb6-48bf-ad58-273fc137d7c2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4320758f5196477e45fd34eff36296a09822556b58d06f4a73b0c972f5cf03ac"
+  },
+  "id": "eUpjpEUlkeSlcDfL",
+  "tags": []
+}
